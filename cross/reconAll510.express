@@ -1,0 +1,9 @@
+# Demo of ExpressLane express file for ADABOOST pipeline
+script=reconAll510
+jobs=reconAll510.jobs
+inputDir=lfn:@@INPUTDIR@@
+outputDir=lfn:@@OUTPUTDIR@@
+commonDir=lfn:@@COMMONDIR@@
+ExplicitFiles=2
+MemRequired=2GB
+DiskSpaceRequired=2GB

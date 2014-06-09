@@ -1,0 +1,6 @@
+#requirements='other.GlueCEUniqueID == "srv5.fatebenefratelli.it:8443/cream-pbs-neugrid"'
+requirements='other.GlueCEUniqueID == "ng-ki-server5.ki.se:8443/cream-pbs-neugrid"'
+#requirements='other.GlueCEUniqueID == "ng-maat-server9.gnubila.fr:8443/cream-pbs-neugrid"'
+#requirements='other.GlueCEUniqueID == "ng-hug-server5.neuro.hcuge.ch:8443/cream-pbs-neugrid"'
+#retryCount=2
+#shallowRetryCount=2

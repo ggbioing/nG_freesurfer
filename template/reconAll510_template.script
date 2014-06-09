@@ -1,0 +1,79 @@
+#!/bin/bash
+set -e
+
+######################################################################################
+# The file INSTALL_SUPPORT_SOFTWARE is expected to be available              
+# from the commondirectory. Just in case it isn't ceate it                   
+######################################################################################
+
+if [ ! -e INSTALL_SUPPORT_SOFTWARE ]; then
+   echo "export FSLDIR=\$VO_VO_NEUGRID_EU_SW_DIR/fsl-5.0.4" > INSTALL_SUPPORT_SOFTWARE
+   echo ". \$FSLDIR/etc/fslconf/fsl.sh" >> INSTALL_SUPPORT_SOFTWARE
+   echo "export PATH=\$PATH:\$FSLDIR/bin" >> INSTALL_SUPPORT_SOFTWARE
+
+   echo "export FREESURFER_HOME=\$VO_VO_NEUGRID_EU_SW_DIR/freesurfer-5.1.0" >> INSTALL_SUPPORT_SOFTWARE
+   echo "export SUBJECTS_DIR=\$PWD" >> INSTALL_SUPPORT_SOFTWARE
+   echo ". \${FREESURFER_HOME}/SetUpFreeSurfer.sh"  >> INSTALL_SUPPORT_SOFTWARE
+#   echo "export LATEX_DIR=\$VO_VO_NEUGRID_EU_SW_DIR/texlive-2012" >> INSTALL_SUPPORT_SOFTWARE
+#   echo "export OCTAVE_DIR=\$VO_VO_NEUGRID_EU_SW_DIR/octave-3.0.5-1.el5" >> INSTALL_SUPPORT_SOFTWARE
+#   echo ". \${OCTAVE_DIR}/octave-init-env.sh"  >> INSTALL_SUPPORT_SOFTWARE
+fi
+
+echo "======================="
+cat INSTALL_SUPPORT_SOFTWARE
+echo "======================="
+
+#######################################################################################
+## PERFORM INITIALIZATION OF THE SOFTWARE SOURCING THE FILE INSTALL_SUPPORT_SOFTWARE ##
+#######################################################################################
+if [ -e INSTALL_SUPPORT_SOFTWARE ]; then
+   source INSTALL_SUPPORT_SOFTWARE
+else
+   if [ ! -z "${WRAPPER_COMMON_DIR}" ] && [ -e "${WRAPPER_COMMON_DIR}"/INSTALL_SUPPORT_SOFTWARE ]; then
+      source "${WRAPPER_COMMON_DIR}"/INSTALL_SUPPORT_SOFTWARE
+   fi
+fi
+
+############
+## SCRIPT ##
+############
+JobName=$1 # templateName
+TP1=$2     # timePoint 1 tar.bz2 file
+TP2=$3     # timePoint 2 tar.bz2 file
+TP3=$4     # timePoint 2 tar.bz2 file
+TP4=$5     # timePoint 2 tar.bz2 file
+
+echo "Script BEGIN: $(date)"
+echo "JobName: $JobName"
+echo "TP1: $TP1"
+echo "TP2: $TP2"
+echo "TP3: $TP3"
+echo "TP4: $TP4"
+
+export SUBJECTS_DIR=$PWD
+
+mkdir Output
+
+tar xjvf $TP1 -C $SUBJECTS_DIR
+tar xjvf $TP2 -C $SUBJECTS_DIR
+tar xjvf $TP3 -C $SUBJECTS_DIR
+tar xjvf $TP4 -C $SUBJECTS_DIR
+
+ls -CF > Output/${JobName}.WD.txt
+
+timePoint1=$(basename $TP1 ".tar.bz2")
+timePoint2=$(basename $TP2 ".tar.bz2")
+timePoint3=$(basename $TP3 ".tar.bz2")
+timePoint4=$(basename $TP4 ".tar.bz2")
+
+recon-all -base $JobName -tp $timePoint1 -tp $timePoint2 -tp $timePoint3 -tp $timePoint4 -all -flirt-motioncor
+
+tar -cjf Output/${JobName}.tar.bz2 $JobName/*
+
+echo "Script END: $(date)"
+
+################################
+# Signal successful completion #
+################################
+
+touch Output/${JobName}.4script-done
